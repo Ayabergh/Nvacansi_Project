@@ -1,8 +1,7 @@
 const express= require('express');
 const cors= require('cors');
 const { default: mongoose } = require('mongoose');
-const usermodel = require('./models/user');
-const user= require('./models/user.js');
+const user= require('./models/user');
 const bcrypt=require('bcryptjs');
 const jsonwebtoken=require('jsonwebtoken');
 require('dotenv').config()
@@ -10,10 +9,11 @@ const cookieparser =require('cookie-parser');
 const app=express();
 const bcryptsalt=bcrypt.genSaltSync(10);
 const jsonsecret='ayabgh';
-const download = require('image-downloader');
 const multer = require('multer');
 const fs=require('fs')
 const path =require('path');
+const place= require('./models/place.js');
+
 //-----------------------------------
 app.use(express.json());
 app.use(cookieparser());
@@ -71,16 +71,17 @@ app.post('/login',async(req,res)=>{
 });
 //-----------------------------------
 app.get('/profile',(req,res)=>{
-    const {token}=req.cookies;
-    if(token){
-        jsonwebtoken.verify(token,jsonsecret,{},(err,user)=>{
-            if(err) throw err;
-            res.json(user);
-        });
-    }else{
-        res.json(null);
+    const {token} = req.cookies;
+    if (token) {
+        jsonwebtoken.verify(token, jsonsecret, {}, async (err, userData) => {
+        if (err) throw err;
+        const {name,email,_id} = await user.findById(userData.id);
+        res.json({name,email,_id});
+      });
+    } else {
+      res.json(null);
     }
-    res.json({token});
+   
 });
 //----------------------------------------------------------------------------
 
@@ -90,15 +91,7 @@ app.post('/logout',(req,res)=>{
 
 //------------------------------------------------------------------
 console.log(__dirname);
-app.post('/upload-by-link', async (req,res)=>{
-    const {link}= req.body;
-    const newName='photo'+ Date.now()+'.jpg';
-    await download.image({
-        url:link,
-        dest:path.join(__dirname, 'uploads', newName),
-    });
-    res.json( newName);
-});
+
 //------------------------------------------------------------------
 
 const phtosmiddleware=multer({dest:'uploads'})
@@ -113,6 +106,24 @@ app.post('/uploads', phtosmiddleware.array('photos', 100), (req, res) => {
     }
     res.json(uploadedFiles);
 });
+
+
+app.post('/places',(req,res)=>{
+    const {token}=req.cookies;
+    const {title,address,photo,description,perks,
+        extrainf,checkIn,checkOut,maxGuest}=req.body;
+    jsonwebtoken.verify(token,jsonsecret,{},async(err,user)=>{
+        if(err) throw err;
+       const placedoc = place.create({
+            owner:User.id,
+            title,address,photo,description,perks,
+            extrainf,checkIn,checkOut,maxGuest,
+            
+        })
+        res.json(placedoc);
+    });
+   
+})
 
 //-----------------------------------
 const PORT = 4000;

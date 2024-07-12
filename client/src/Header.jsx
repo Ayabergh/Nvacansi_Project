@@ -14,7 +14,7 @@ export default function Header(){
 </Link>
 
 
-<div className='font-semibold flex gap-5 border border-gray-300 rounded-full p-2 px-4 shadow-md shadow-orange-200'>
+<div className='font-semibold flex gap-5 border border-gray-300 rounded-full p-2 px-4 shadow-md shadow-blue-200'>
   <div>Anywhere</div>
   <div className=' border-l border-gray-300'></div>
   <div>Any week</div>
@@ -27,7 +27,7 @@ export default function Header(){
   </button>
 </div>
 
-<Link to={user?'/account':'/login'} className='flex item-center gap-2 border border-gray-300 rounded-full p-2 px-4 shadow-md shadow-orange-200 font-semibold'>
+<Link to={user?'/account':'/login'} className='flex item-center gap-2 border border-gray-300 rounded-full p-2 px-4 shadow-md shadow-blue-200 font-semibold'>
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 relative top-1">
   <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
 </svg>

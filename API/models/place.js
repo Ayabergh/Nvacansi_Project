@@ -1,18 +1,20 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
+const placeSchema = new mongoose.Schema({
+    
+    owner: {type:mongoose.Schema.Types.ObjectId, ref:'user'},
+    title: String,
+    address: String,
+    photos: [String],
+    description: String,
+    perks: [String],
+    extraInfo: String,
+    checkIn: Number,
+    checkOut: Number,
+    maxGuests: Number,
+    price: Number,
+  });
+  
+  const PlaceModel = mongoose.model('place', placeSchema);
+  
+  module.exports = PlaceModel;
 
-
-const placeschema = new mongoose.Schema({
-    owner:mongoose.Schema.Types.ObjectId,ref:'user',
-    title:String,
-    address:String,
-    photo:[String],
-    description:String,
-    perks:[String],
-    extrainf:String,
-    checkIn:Number,
-    checkOut:Number,
-    maxGuest:Number,
-});
-
-const placemodel =mongoose.model('place',placeschema);
-module.exports=placemodel;

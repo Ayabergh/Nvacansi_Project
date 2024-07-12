@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import Perks from "../Perks";
 import axios from "axios";
 
@@ -9,13 +9,13 @@ export default function PlacesPage() {
     const [title,settitle]=useState('');
     const [address,setddress]=useState('');
     const [photos,setphotos]=useState([]);
-    const [photosLink,setphotosLink]=useState('');
     const [description,setdescription]=useState('');
     const [perks,setperks]=useState([]);
     const [extra,setextra]=useState('');
     const [checkin,setcheckin]=useState('');
     const [checkout,setcheckout]=useState('');
     const [maxguest,,setmaxguest]=useState(1);
+    const [redirect,setredirect]=useState('');
     //----------------------------------------
     function inputheader(text){
         return(
@@ -36,18 +36,6 @@ export default function PlacesPage() {
         {inputparagraphe(description)}
         </>);
     }
-    //---------------------------------------------------
-    async function addphotoLink(ev){
-        ev.preventDefault();
-        const {data:filename}=await  axios.post('http://localhost:4000/upload-by-link',{link: photosLink});
-        setphotos(prev=>{
-            return[...prev,filename];
-        });
-        setphotosLink('');
-    }
-    //---------------------------------------------------
-     
-
     //--------------------------------
     function uploadphoto(ev) {
         const files = ev.target.files;
@@ -64,9 +52,20 @@ export default function PlacesPage() {
           });
         })
       }
+     //---------------------------------------------------
+      async function addnewplace(ev){
+        ev.preventDefault();
+        await axios.post('/places',{
+            title,address,photos,
+            description,perks,extra,
+            checkin,checkout,maxguest});
+            setredirect('/account/places');
+      }
     //---------------------------------------------------
-
-
+   if (redirect){
+    return <Navigate to={redirect}/>
+   }
+    
     return(
     <div>
         {action !== 'new' && (
@@ -80,7 +79,7 @@ export default function PlacesPage() {
         )}
         {action === 'new'&& (
             <div>
-            <form >
+            <form onSubmit={addnewplace}>
                 {input_output('Title','Title for your house')}
                <input type="text" value={title} onChange={ev=>settitle(ev.target.value)} placeholder="Title : summer appartement"/>
 
@@ -90,21 +89,18 @@ export default function PlacesPage() {
 
 
                 {input_output('Photo','a PICs for your house')}
-                <div className="flex gap-2 ">
-                    <input type="text"value={photosLink} onChange={ev=>setphotosLink(ev.target.value)} placeholder={"add using a link.........jpg"} />
-                    <button onClick={addphotoLink} className="font-semibold bg-gray-200 px-4 rounded-2xl"> Add Photo</button>
-                </div>
+              
 
-                <div className="grid grid-cols-3 md-grid-cols-4 lg:grid-cols-6 mt-3">
+                <div className="grid gap-3 grid-cols-3 md-grid-cols-4 lg:grid-cols-6 mt-3">
   {/* --------------------------------------------------------------------------------------------------- */}
                     {photos.length > 0 && photos.map((link=>(
-                    <div>
-                        <img src={"http://localhost:4000/"+link} />
+                    <div className="flex" key={link}>
+                        <img className="rounded-2xl w-full object-cover" src={"http://localhost:4000/"+link} />
                    </div>
                       )))}
  {/* --------------------------------------------------------------------------------------------------- */}
                        
-                   <label className="cursor-pointer gap-1 justify-center flex border bg-transparent rounded-2xl p-8 text-2xl text-gray-700 font-semibold" >Upload
+                   <label className="items-center cursor-pointer gap-1 justify-center flex border bg-transparent rounded-2xl p-8 text-2xl text-gray-700 font-semibold" >Upload
                    <input type="file" multiple className="hidden" onChange={uploadphoto} />
 
                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-8">
