@@ -111,19 +111,59 @@ app.post('/uploads', phtosmiddleware.array('photos', 100), (req, res) => {
 app.post('/places',(req,res)=>{
     const {token}=req.cookies;
     const {title,address,photo,description,perks,
-        extrainf,checkIn,checkOut,maxGuest}=req.body;
+        extrainf,checkIn,checkOut}=req.body;
     jsonwebtoken.verify(token,jsonsecret,{},async(err,user)=>{
         if(err) throw err;
        const placedoc = place.create({
-            owner:User.id,
-            title,address,photo,description,perks,
-            extrainf,checkIn,checkOut,maxGuest,
+            owner:user.id,
+            title,address,photo:photo,description,perks,
+            extrainf,checkIn,checkOut,
             
-        })
+        });
         res.json(placedoc);
     });
    
-})
+});
+
+
+
+app.get('/places',(req,res)=>{
+    const {token}=req.cookies;
+    jsonwebtoken.verify(token,jsonsecret,{},async(err,user)=>{
+        const {id}=user;
+        res.json(await place.find({owner:id}));
+    });
+});
+app.get('/places/:id',async(req,res) => {
+   const {id} =req.params
+   res.json(await place.findById(id));
+});
+
+
+
+
+
+
+  app.put('/places', async (req,res) => {
+    const {token} = req.cookies;
+    const {
+      id, title,address,addedPhotos,description,
+      perks,extraInfo,checkIn,checkOut,maxGuests,price,
+    } = req.body;
+    jsonwebtoken.verify(token, jsonsecret, {}, async (err, userData) => {
+      if (err) throw err;
+      const placeDoc = await place.findById(id);
+      if (userData.id === placeDoc.owner.toString()) {
+        placeDoc.set({
+          title,address,photos:addedPhotos,description,
+          perks,extraInfo,checkIn,checkOut,maxGuests,price,
+        });
+        await placeDoc.save();
+        res.json('ok');
+      }
+    });
+  });
+  
 
 //-----------------------------------
 const PORT = 4000;
